@@ -21,7 +21,10 @@ def check_pfx(path_pfx_file, password, bastion, remote_host):
     gateway_session = SSHSession(host=bastion, port=7022, password=None,
                                  missing_host_key_policy=None, username='support')
     remote_session = gateway_session.get_remote_session(remote_host, password=None, username='root', port=7022)
-    print(remote_session.get_cmd_output('ls -lta'))
+    command_file = open("remote_cmd", "r")
+    command_file_lines = command_file.readline()
+    for line in command_file_lines:
+        remote_session.get_cmd_output(str(line)
 
 # def remote_ssl_backup(bastion, remote_host):
 #     click.echo(bastion)
