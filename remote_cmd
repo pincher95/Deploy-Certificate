@@ -1,0 +1,11 @@
+cd /etc/apache/passl
+mkdir backup-$(date +'%F')
+cp {pa.cert.cert,pa.cert.key,pa.cert.intermediate} backup-$(date +'%F')/
+cp -p /var/qmail/control/clientcert.pem /var/qmail/control/clientcert.pem.back
+cp -p /var/qmail/control/servercert.pem /var/qmail/control/servercert.pem.back
+cat pa.cert.cert,pa.cert.key,pa.cert.intermediate > /var/qmail/control/clientcert.pem
+cat '' > /var/qmail/control/clientcert.pem
+cp /var/qmail/control/clientcert.pem /var/qmail/control/servercert.pem
+for i in {1..3}; do qmail stop; done; qmail start
+qmail start
+apache -k restart
