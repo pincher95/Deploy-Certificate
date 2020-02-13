@@ -27,7 +27,8 @@ def check_pfx(path_pfx_file, password, bastion, remote_host):
 #     click.echo(bastion)
 #     click.echo(remote_host)
 # gateway_session = SSHSession(private_key_file='', host=bastion, port=7022, password=None, missing_host_key_policy='')
-
+    remote_session.close()
+    gateway_session.close()
 
 def main():
     check_pfx()
