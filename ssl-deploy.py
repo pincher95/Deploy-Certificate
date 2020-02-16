@@ -15,23 +15,34 @@ def check_pfx(path_pfx_file, password, bastion, remote_host):
     click.echo(crypto.dump_certificate(crypto.FILETYPE_PEM, p12.get_certificate()))
     private_key = crypto.dump_privatekey(crypto.FILETYPE_PEM, p12.get_privatekey())
     public_certificate = crypto.dump_certificate(crypto.FILETYPE_PEM, p12.get_certificate())
-    # ca_certificate = crypto.dump_certificate(crypto.FILETYPE_PEM, p12.get_ca_certificates())
-    # click.echo(path_pfx_file)
-    # remote_ssl_backup(bastion, remote_host)
+    try:
+        ca_certificate = crypto.dump_certificate(crypto.FILETYPE_PEM, p12.get_ca_certificates())
+
     gateway_session = SSHSession(host=bastion, port=7022, password=None,
                                  missing_host_key_policy=None, username='support')
     remote_session = gateway_session.get_remote_session(remote_host, password=None, username='root', port=7022)
-    command_file = open("remote_cmd", "r")
-    command_file_lines = command_file.readline()
-    for line in command_file_lines:
-        remote_session.get_cmd_output(str(line)
+    # command_file = open("remote_backup.sh", "r")
+    # command_file_lines = command_file.readline()
+    # while command_file_lines:
+    #     print(command_file_lines)
+    #     command_file_lines = command_file.readline()
+    #     remote_session.run_cmd(command_file_lines)
+    # command_file.close()
+    remote_session.put('./remote_backup.sh', '/root/remote_backup.sh', owner='root', permissions='0700')
+    remote_session.run_cmd('/root/remote_backup.sh')
+    remote_session.file(remote_path='/etc/apache/passl/pa.cert.key', content=private_key, owner='root',
+                        permissions='644')
+    remote_session.file(remote_path='/etc/apache/passl/pa.cert.cert', content=public_certificate, owner='root',
+                        permissions='644')
+    remote_session.file(remote_path='/etc/apache/passl/pa.cert.intermediate', content=ca_certificate, owner='root',
+                        permissions='644')
+    print(remote_session.get_cmd_output('ls -alh'))
+    print(remote_session.get_cmd_output("ls -alh /etc/apache/passl/backup-$(date +'%F')"))
+    print(remote_session.get_cmd_output('ls -alh /var/qmail/conrtol/'))
 
-# def remote_ssl_backup(bastion, remote_host):
-#     click.echo(bastion)
-#     click.echo(remote_host)
-# gateway_session = SSHSession(private_key_file='', host=bastion, port=7022, password=None, missing_host_key_policy='')
     remote_session.close()
     gateway_session.close()
+
 
 def main():
     check_pfx()
