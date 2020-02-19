@@ -4,9 +4,9 @@ from jumpssh import SSHSession
 
 
 @click.command()
-@click.option('-f', '--path-pfx-file', default='', help="Path to pfx file.")
-@click.option('-p', '--password', default='', help="pfx password.")
-@click.option('-r', '--remote-host', default='', help="Remote Host.")
+@click.option('-f', '--path-pfx-file', type=click.Path(exists=True), help="Path to pfx file.")
+@click.option('-p', '--password', type=str, help="pfx password.")
+@click.option('-r', '--remote-host', type=str, help="Remote Host.")
 @click.option('-b', '--bastion', default='192.168.2.200', help="Bastion host.", show_default=True)
 def check_pfx(path_pfx_file, password, bastion, remote_host):
     p12 = crypto.load_pkcs12(open(path_pfx_file, 'rb').read(), password)
